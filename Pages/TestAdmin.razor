@@ -1,0 +1,10 @@
+﻿@page "/testadmin"
+<h3>TestAdmin</h3>
+
+<AuthorizeView Policy="AdminOnly">
+    <p>You can only see this if you satisfy the "AdminOnly" policy.</p>
+</AuthorizeView>
+
+@code {
+
+}

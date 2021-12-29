@@ -1,0 +1,44 @@
+﻿@page "/fetchdata"
+
+@inject IHttpClientFactory HttpClientFactory
+@inject Microsoft.Identity.Web.ITokenAcquisition TokenAcquisitionService
+
+<p>This component demonstrates fetching data from a service.</p>
+
+<h1>Hello @userDisplayName !!!!</h1>
+
+<p>@userText</p>
+
+@code {
+
+    private string userDisplayName;
+
+    private HttpClient _httpClient;
+    protected string userText = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _httpClient = HttpClientFactory.CreateClient();
+
+
+        // get a token
+        var token = await TokenAcquisitionService.GetAccessTokenForUserAsync(new string[] { "User.Read" });
+
+        // make API call
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        var dataRequest = await _httpClient.GetAsync("https://graph.microsoft.com/beta/me");
+
+        if (dataRequest.IsSuccessStatusCode)
+        {
+            var userData = System.Text.Json.JsonDocument.Parse(await dataRequest.Content.ReadAsStreamAsync());
+            userDisplayName = userData.RootElement.GetProperty("displayName").GetString();
+            userText = userData.ToJsonString();
+        }
+
+        
+    }
+
+
+
+}
